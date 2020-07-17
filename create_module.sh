@@ -16,7 +16,7 @@ mod_dir="$(pwd)/ModuleTemplate";
 
 if [ ! -d $mod_dir ]; then
 	rm -rf $mod_dir;
-	git clone https://github.com/mikopbx/ModuleTemplate.git
+	git clone --single-branch --branch develop https://github.com/mikopbx/ModuleTemplate.git
 	rm -rf ${mod_dir}/.git*;
 	rm -rf ${mod_dir}/.idea;
 	rm -rf ${mod_dir}/README*;
@@ -51,7 +51,7 @@ replace() {
 	fname=$1;
 	dst_file=$(echo $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g")
 	rm -rf $dst_file;
-	mkdir -p $(dirname $dst_file);
+	mkdir -p $(dirname "${dst_file}");
 	cat $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g" > $dst_file;
 }
 
@@ -63,8 +63,11 @@ do
 done
 
 dst_lib_dir="$(pwd)/$dst_slass/Lib";
-res_file=$(echo 'ModuleMyNewModPBX' | sed 's/Module//');
-mv "$dst_lib_dir/Template.php" "$dst_lib_dir/$res_file.php"
+res_file=$(echo "${dst_slass}" | sed 's/Module//');
+mv "$dst_lib_dir/TemplateConf.php" "${dst_lib_dir}/${res_file}Conf.php"
+mv "$dst_lib_dir/TemplateMain.php" "${dst_lib_dir}/${res_file}Main.php"
+mv "$dst_lib_dir/WorkerTemplateAMI.php" "${dst_lib_dir}/Worker${res_file}AMI.php"
+mv "$dst_lib_dir/WorkerTemplateMain.php" "${dst_lib_dir}/Worker${res_file}Main.php"
 
 if [ "${need_remove_src_dir}x" != "x" ]; then
 	rm -rf $mod_dir;
