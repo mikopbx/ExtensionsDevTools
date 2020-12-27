@@ -1,29 +1,30 @@
 #!/bin/sh
-
+export LC_CTYPE=C;
 if [ "${1}x" != "x" ]; then
-	dst_slass="$1";
+	dstClass="$1";
 else
-	dst_slass='ModuleMyNewModPBX';
+	dstClass='ModuleMyNewModPBX';
 fi;
 
-echo $dst_slass | grep -i '^Module' > /dev/null
-test=$(echo $dst_slass | grep -i '^Module')
-if [ "${?}" != "0" ]; then
-	dst_slass="Module${dst_slass}";
+echo "$dstClass" | grep -i '^Module' > /dev/null;
+resultTest="${?}";
+if [ "$resultTest" != "0" ]; then
+	dstClass="Module${dstClass}";
 fi;
 
-mod_dir="$(pwd)/ModuleTemplate";
+simpleDstClass=$(echo "$dstClass" | sed "s/Module//g");
+modDir="$(pwd)/ModuleTemplate";
 
-if [ ! -d $mod_dir ]; then
-	rm -rf $mod_dir;
-	git clone https://github.com/mikopbx/ModuleTemplate.git
-	rm -rf ${mod_dir}/.git*;
-	rm -rf ${mod_dir}/.idea;
-	rm -rf ${mod_dir}/README*;
-	need_remove_src_dir=1;
+if [ ! -d "$modDir" ]; then
+	rm -rf "$modDir";
+	git clone --single-branch --branch develop https://github.com/mikopbx/ModuleTemplate.git
+	rm -rf "${modDir}"/.git*;
+	rm -rf "${modDir}"/.idea;
+	rm -rf "${modDir}"/README*;
+	needRemoveSrcDir=1;
 fi;
 	
-src_class=$(basename $mod_dir);
+srcClass=$(basename "$modDir");
 
 to_lower_case(){
 	result=$(echo "$1" | tr '[:upper:]' '[:lower:]');
@@ -31,41 +32,91 @@ to_lower_case(){
 camel_to_dash_style(){
 	result=$(echo "$1" | sed 's|\([A-Z][^A-Z]\)| \1|g' | xargs);
 	result=$(echo "$result" | tr ' ' '-');
-	to_lower_case $result;
-	echo $result;	
+	to_lower_case "$result";
+	echo "$result";
 }
 camel_to_underline_style(){
 	result=$(echo "$1" | sed 's|\([A-Z][^A-Z]\)| \1|g' | xargs);
 	result=$(echo "$result" | tr ' ' '_');
-	to_lower_case $result;
-	echo $result;
+	to_lower_case "$result";
+	echo "$result";
 }
 
-src_shot='mod_tpl_';
-dst_shot=$(camel_to_underline_style $dst_slass);
+srcShotPrefix='mod_tpl_';
+dstShotPrefix=$(camel_to_underline_style $dstClass);
 
-src_req='module-template';
-dst_req=$(camel_to_dash_style $dst_slass);
+srcReq='module-template';
+dstReq=$(camel_to_dash_style $dstClass);
 
 replace() {
-	fname=$1;
-	dst_file=$(echo $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g")
-	rm -rf $dst_file;
-	mkdir -p $(dirname $dst_file);
-	cat $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g" > $dst_file;
+	fileName="$1";
+	dstFile=$(echo "$fileName" | sed "s/${srcClass}/${dstClass}/g" | sed "s/${srcReq}/${dstReq}/g" | sed  "s/${srcShotPrefix}/${dstShotPrefix}/g")
+
+  echo "$fileName" | grep "\.php$" > /dev/null;
+  isPHP="$?"
+  if [ "$isPHP" = "0" ]; then
+    oldClassName=$(basename "$fileName" | sed "s/\.php//g");
+    newClassName=$(echo "$oldClassName" | sed "s/Template/$simpleDstClass/g");
+    if [ "$oldClassName" != "$newClassName" ]; then
+      # Тут описываем соответствие-масив, значения для замены в пост обработке.
+      wordCounter=$((wordCounter+1));
+      dstFile="$(dirname "$dstFile")/${newClassName}.php";
+      # Сохарнием переменные для пост обработки.
+      eval oldClassName$wordCounter="$oldClassName";
+      eval newClassName$wordCounter="$newClassName";
+
+      varName=$(echo "$fileName" | tr '/' 's'| tr '.' 's');
+      eval dstFile"$varName"="$dstFile"
+    fi;
+	fi;
+
+	rm -rf "$dstFile";
+	mkdir -p "$(dirname "${dstFile}")";
+	sed "s/${srcClass}/${dstClass}/g" < "$fileName" | sed "s/${srcReq}/${dstReq}/g" | sed  "s/${srcShotPrefix}/${dstShotPrefix}/g" > "$dstFile";
 }
 
-files=$(find $mod_dir -type f)
 
-for fname in $files
+
+replacePartTwo() {
+	fileName="$1";
+	countVars="$2"
+
+  varName=$(echo "$fileName" | tr '/' 's'| tr '.' 's');
+	dstFile=$(eval echo \$dstFile"$varName");
+  if [ "$dstFile" = "" ]; then
+    return;
+  fi;
+	echo "Dst $dstFile...";
+	while [ "$countVars" != 0 ] ; do
+    oldClassName=$(eval echo \$oldClassName"$countVars");
+    newClassName=$(eval echo \$newClassName"$countVars");
+    if [ "$oldClassName" != '' ]; then
+      echo "  -- Replace $oldClassName To $newClassName"
+      cp "$dstFile" "${dstFile}.tmp";
+      sed "s/${oldClassName}/${newClassName}/g" < "${dstFile}.tmp" > "$dstFile"
+      rm "${dstFile}.tmp";
+    fi;
+    countVars=$((countVars-1));
+  done
+}
+
+files=$(find "$modDir" -type f)
+wordCounter=1;
+
+for fileName in $files
 do
-	replace $fname;	
+	replace "$fileName";
 done
 
-dst_lib_dir="$(pwd)/$dst_slass/Lib";
-res_file=$(echo 'ModuleMyNewModPBX' | sed 's/Module//');
-mv "$dst_lib_dir/Template.php" "$dst_lib_dir/$res_file.php"
+for fileName in $files
+do
+	echo "$fileName" | grep "\.php$" > /dev/null;
+  isPHP="$?"
+  if [ "$isPHP" = "0" ]; then
+    replacePartTwo "$fileName" "$wordCounter";
+  fi;
+done
 
-if [ "${need_remove_src_dir}x" != "x" ]; then
-	rm -rf $mod_dir;
+if [ "${needRemoveSrcDir}x" != "x" ]; then
+	rm -rf "$modDir";
 fi;
