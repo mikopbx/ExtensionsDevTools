@@ -44,9 +44,9 @@ def func_rename(file_name, str_to_replace, replacement_name):
 
 def func_change_file(file_name, str_to_replace, replacement_name):
     file_to_change = ''
-    with open(file_name, "rt") as file:
+    with open(file_name, "rt", encoding='utf8', errors='ignore') as file:
         file_to_change = file.read()
-    with open(file_name, "wt") as file:
+    with open(file_name, "wt", encoding='utf8', errors='ignore') as file:
         file_to_change = file_to_change.replace(str_to_replace, replacement_name)
         file.write(file_to_change)
 
