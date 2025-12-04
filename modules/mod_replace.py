@@ -13,6 +13,7 @@ NAME_TO_CHANGE = 'Template'
 NAME_TO_CHANGE_IN_DASH_STYLE = 'module-template'
 NAME_TO_CHANGE_IN_UNDERLINE_STYLE_SHORT = 'mod_tpl'
 NAME_TO_CHANGE_IN_UNDERLINE_STYLE = 'module_template'
+NAME_TO_CHANGE_COMPOSER = 'moduletemplate'  # For composer.json "name" field
 
 GITHUB_URL = "https://github.com/mikopbx/ModuleTemplate.git"
 DELETE_FILE_1 = 'README.md'
@@ -44,9 +45,9 @@ def func_rename(file_name, str_to_replace, replacement_name):
 
 def func_change_file(file_name, str_to_replace, replacement_name):
     file_to_change = ''
-    with open(file_name, "rt") as file:
+    with open(file_name, "rt", encoding='utf8', errors='ignore') as file:
         file_to_change = file.read()
-    with open(file_name, "wt") as file:
+    with open(file_name, "wt", encoding='utf8', errors='ignore') as file:
         file_to_change = file_to_change.replace(str_to_replace, replacement_name)
         file.write(file_to_change)
 
@@ -83,6 +84,7 @@ os.chdir(os.path.dirname(os.getcwd()))
 FileRename = dir_name[6:]
 TextInDashStyle = name_to_dash_style(dir_name)
 TextInUnderlineStyle = name_to_underline_style(dir_name)
+TextInComposerStyle = dir_name.lower()  # For composer.json "name" field
 
 filelist = []
 for root, dirs, files in os.walk(dir_name):
@@ -95,6 +97,7 @@ for name in filelist:
         func_change_file(name, NAME_TO_CHANGE_IN_DASH_STYLE, TextInDashStyle[:-1])
         func_change_file(name, NAME_TO_CHANGE_IN_UNDERLINE_STYLE_SHORT, TextInUnderlineStyle[:-1])
         func_change_file(name, NAME_TO_CHANGE_IN_UNDERLINE_STYLE, TextInUnderlineStyle[:-1])
+        func_change_file(name, NAME_TO_CHANGE_COMPOSER, TextInComposerStyle)
 
     if not name.find(NAME_TO_CHANGE) == -1:
         func_rename(name, NAME_TO_CHANGE, FileRename)

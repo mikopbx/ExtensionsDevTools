@@ -48,6 +48,11 @@ dstShotPrefix=$(camel_to_underline_style $dstClass);
 srcReq='module-template';
 dstReq=$(camel_to_dash_style $dstClass);
 
+# For composer.json "name": "mikopbx/moduletemplate" (Issue #2)
+srcComposerName='moduletemplate';
+to_lower_case "$dstClass";
+dstComposerName="$result";
+
 replace() {
 	fileName="$1";
 	dstFile=$(echo "$fileName" | sed "s/${srcClass}/${dstClass}/g" | sed "s/${srcReq}/${dstReq}/g" | sed  "s/${srcShotPrefix}/${dstShotPrefix}/g")
@@ -72,7 +77,7 @@ replace() {
 
 	rm -rf "$dstFile";
 	mkdir -p "$(dirname "${dstFile}")";
-	sed "s/${srcClass}/${dstClass}/g" < "$fileName" | sed "s/${srcReq}/${dstReq}/g" | sed  "s/${srcShotPrefix}/${dstShotPrefix}/g" > "$dstFile";
+	sed "s/${srcClass}/${dstClass}/g" < "$fileName" | sed "s/${srcReq}/${dstReq}/g" | sed "s/${srcShotPrefix}/${dstShotPrefix}/g" | sed "s/${srcComposerName}/${dstComposerName}/g" > "$dstFile";
 }
 
 

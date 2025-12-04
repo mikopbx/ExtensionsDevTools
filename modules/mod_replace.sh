@@ -47,12 +47,17 @@ dst_shot=$(camel_to_underline_style $dst_slass);
 src_req='module-template';
 dst_req=$(camel_to_dash_style $dst_slass);
 
+# For composer.json "name": "mikopbx/moduletemplate" (Issue #2)
+src_composer='moduletemplate';
+to_lower_case "$dst_slass";
+dst_composer="$result";
+
 replace() {
 	fname=$1;
 	dst_file=$(echo $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g")
 	rm -rf $dst_file;
 	mkdir -p $(dirname $dst_file);
-	cat $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed  "s/${src_shot}/${dst_shot}/g" > $dst_file;
+	cat $fname | sed "s/${src_class}/${dst_slass}/g" | sed "s/${src_req}/${dst_req}/g" | sed "s/${src_shot}/${dst_shot}/g" | sed "s/${src_composer}/${dst_composer}/g" > $dst_file;
 }
 
 files=$(find $mod_dir -type f)
