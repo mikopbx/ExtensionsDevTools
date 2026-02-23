@@ -7,6 +7,7 @@ A collection of utilities for MikoPBX module development, JavaScript compilation
 | Tool | Description | Documentation |
 |------|-------------|---------------|
 | [**babel/**](./babel/) | ES6+ to ES5 JavaScript compiler with Docker support | [babel/README.md](./babel/README.md) |
+| [**docker/**](./docker/) | Docker container & module management for dev environments | [CLAUDE.md](./CLAUDE.md) |
 | [**modules/**](./modules/) | Scripts for creating new MikoPBX modules | [modules/README.md](./modules/README.md) |
 | [**worktrees/**](./worktrees/) | Git worktree management for feature development | [worktrees/README.md](./worktrees/README.md) |
 
@@ -56,6 +57,7 @@ The image is automatically rebuilt when changes are pushed to the `babel/` direc
 ```
 ExtensionsDevTools/
 ├── README.md                       # This file
+├── CLAUDE.md                       # Claude Code instructions
 ├── LICENSE                         # MIT License
 ├── babel/                          # JavaScript compiler
 │   ├── README.md
@@ -65,6 +67,9 @@ ExtensionsDevTools/
 │   ├── docker-entrypoint.sh
 │   ├── package.json
 │   └── package-lock.json
+├── docker/                         # Dev container management
+│   ├── dev-compose.sh              # Module & container orchestration
+│   └── modules.yml.example         # Default module configuration
 ├── modules/                        # Module creation tools
 │   ├── README.md
 │   ├── create_module.sh
