@@ -1,0 +1,52 @@
+# Module development configuration for dev-compose.sh
+# path: relative to dev_docker/ (same as in docker-compose files)
+# If path is omitted, defaults to ../Extensions/{ModuleID}
+
+modules:
+  # Standard modules
+  ModuleUsersUI:
+    enabled: true
+  ModuleLdapSync:
+    enabled: true
+  ModuleGetSsl:
+    enabled: true
+  ModuleTemplate:
+    enabled: true
+  ModuleUsersGroups:
+    enabled: true
+
+  # Example modules (non-standard paths)
+  ModuleExampleRestAPIv1:
+    path: ../Extensions/EXAMPLES/REST-API/ModuleExampleRestAPIv1
+    enabled: true
+  ModuleExampleRestAPIv2:
+    path: ../Extensions/EXAMPLES/REST-API/ModuleExampleRestAPIv2
+    enabled: true
+  ModuleExampleRestAPIv3:
+    path: ../Extensions/EXAMPLES/REST-API/ModuleExampleRestAPIv3
+    enabled: true
+  ModuleExampleAmi:
+    path: ../Extensions/EXAMPLES/AMI/ModuleExampleAmi
+    enabled: true
+
+  # Disabled modules (available but not loaded)
+  ModulePhoneBook:
+    enabled: false
+  ModuleSmartIVR:
+    enabled: false
+  ModuleAmoCrm:
+    enabled: false
+  ModuleBitrix24Integration:
+    enabled: false
+  ModuleAutoprovision:
+    enabled: false
+  ModuleCTIClient:
+    enabled: false
+  ModuleCTIClientV5:
+    enabled: false
+  ModuleZabbixAgent5:
+    enabled: false
+  ModuleExtendedCDRs:
+    enabled: false
+  ModuleTelegramProvider:
+    enabled: false
